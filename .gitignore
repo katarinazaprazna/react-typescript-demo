@@ -11,3 +11,7 @@
 
 # Solutions
 solutions.ts
+
+# IDE settings
+.idea/
+.vscode/
