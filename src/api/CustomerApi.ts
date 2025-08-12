@@ -1,10 +1,15 @@
 import { callAPI } from './apiUtilities';
 
-export const choosableColors = ['red', 'pink', 'rebeccapurple', 'grey'];
+export const choosableColors = ['red', 'pink', 'rebeccapurple', 'grey'] as const;
+
+export type Color = typeof choosableColors[number];
+
+// Define a type guard for Color
+export const isColor = (value): value is Color => choosableColors.includes(value)
 
 export interface Customer {
   name: string;
-  color: string; // TODO: Create a new Color type, I only want the "choosableColors" above to be permitted on Customers
+  color: Color;
   age: number;
   isCool: boolean;
 }
