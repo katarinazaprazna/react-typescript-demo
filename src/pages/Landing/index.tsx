@@ -131,7 +131,7 @@ export default () => {
           </Thead>
           <Tbody>
             {data?.map(({ name, age, color, isCool }, key: number) => (
-              <Tr key={name + key}>
+              <Tr key={`${name}-${key}`}>
                 <ColoredTd color={color} dataLabel='name'>
                   {name}
                 </ColoredTd>
