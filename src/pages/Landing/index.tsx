@@ -21,6 +21,7 @@ import { choosableColors, Customer, getCustomers, isColor } from 'src/api/Custom
 import { ColoredTd } from 'src/components/ColoredTd';
 import Loader from 'src/components/Loader';
 import { useAppContext } from 'src/middleware';
+import SnazzyButton from 'src/components/SnazzyButton';
 
 const useStyles = createUseStyles({
   inlineText: {
@@ -60,9 +61,9 @@ export default () => {
         </Button>
       </GridItem>
       <GridItem sm={6}>
-        <Button onClick={() => setIsModalOpen(true)} variant='secondary'>
+        <SnazzyButton onClick={() => setIsModalOpen(true)} variant='secondary'>
           Add New Customer
-        </Button>
+        </SnazzyButton>
       </GridItem>
       <Modal
         variant={ModalVariant.small}
@@ -95,8 +96,7 @@ export default () => {
               onToggle={() => setSelectToggle(!selectToggle)}
               isOpen={selectToggle}
               onSelect={(_e, value) => {
-                if (isColor(value))
-                  setNewUser({ ...newUser, color: value });
+                if (isColor(value)) setNewUser({ ...newUser, color: value });
                 setSelectToggle(false);
               }}
               id='color'
