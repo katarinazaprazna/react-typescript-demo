@@ -2,10 +2,12 @@ import { callAPI } from './apiUtilities';
 
 export const choosableColors = ['red', 'pink', 'rebeccapurple', 'grey'] as const;
 
-export type Color = typeof choosableColors[number];
+export type Color = (typeof choosableColors)[number];
+
+export const DEFAULT_COLOR: Color = 'pink';
 
 // Define a type guard for Color
-export const isColor = (value): value is Color => choosableColors.includes(value)
+export const isColor = (value): value is Color => choosableColors.includes(value);
 
 export interface Customer {
   name: string;

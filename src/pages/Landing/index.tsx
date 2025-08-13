@@ -1,50 +1,20 @@
-import {
-  Button,
-  Checkbox,
-  Form,
-  Grid,
-  GridItem,
-  Modal,
-  ModalVariant,
-  Select,
-  SelectDirection,
-  SelectOption,
-  SelectVariant,
-  Text,
-  TextInput,
-} from '@patternfly/react-core';
+import { Button, Grid, GridItem, Text } from '@patternfly/react-core';
 import { Caption, TableComposable, Tbody, Th, Thead, Tr } from '@patternfly/react-table';
-import { FormEvent, useState } from 'react';
-import { createUseStyles } from 'react-jss';
 import { useQuery } from 'react-query';
-import { choosableColors, Customer, getCustomers, isColor } from 'src/api/CustomerApi';
+import { getCustomers } from 'src/api/CustomerApi';
 import { ColoredTd } from 'src/components/ColoredTd';
 import Loader from 'src/components/Loader';
 import { useAppContext } from 'src/middleware';
 import SnazzyButton from 'src/components/SnazzyButton';
-
-const useStyles = createUseStyles({
-  inlineText: {
-    display: 'block',
-  },
-});
+import { useState } from 'react';
+import AddNewCustomerModal from 'src/components/AddNewCustomerModal';
 
 export default () => {
-  const classes = useStyles();
   const { setDarkmode, darkmode } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newUser, setNewUser] = useState<Partial<Customer>>({ isCool: false });
-  const [selectToggle, setSelectToggle] = useState(false);
-  // const queryClient = useQueryClient();
 
   // Queries
-  const { isLoading, data, isError } = useQuery('customers', getCustomers);
-
-  const onSubmit = (e: FormEvent<Element>) => {
-    e.preventDefault();
-    setNewUser({ isCool: false });
-    setIsModalOpen(false);
-  };
+  const { isLoading, data, isError } = useQuery(['customers', 'list'], getCustomers);
 
   const columnHeaders = ['Name', 'Age', 'Is Cool'];
 
@@ -60,60 +30,7 @@ export default () => {
           Add New Customer
         </SnazzyButton>
       </GridItem>
-      <Modal
-        variant={ModalVariant.small}
-        title='Add Customer'
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <Form onSubmit={onSubmit}>
-          <Grid className={classes.inlineText}>
-            <Text>Name</Text>
-            <TextInput
-              onChange={(value) => setNewUser({ ...newUser, name: value })}
-              value={newUser.name || ''}
-              id='name'
-              type='text'
-            />
-          </Grid>
-          <Grid className={classes.inlineText}>
-            <Text>Age</Text>
-            <TextInput
-              onChange={(value) => setNewUser({ ...newUser, age: Number(value) })}
-              value={newUser.age || ''}
-              id='age'
-              type='number'
-            />
-          </Grid>
-          <Grid className={classes.inlineText}>
-            <Text>Color</Text>
-            <Select
-              onToggle={() => setSelectToggle(!selectToggle)}
-              isOpen={selectToggle}
-              onSelect={(_e, value) => {
-                if (isColor(value)) setNewUser({ ...newUser, color: value });
-                setSelectToggle(false);
-              }}
-              id='color'
-              variant={SelectVariant.single}
-              placeholderText='Select a color'
-              selections={newUser?.color}
-              direction={SelectDirection.up}
-            >
-              {choosableColors.map((color: string, index) => (
-                <SelectOption style={{ color }} key={index} value={color} />
-              ))}
-            </Select>
-          </Grid>
-          <Checkbox
-            label='Is this person cool?'
-            id='isCool'
-            onChange={(value) => setNewUser({ ...newUser, isCool: value })}
-            isChecked={newUser.isCool}
-          />
-          <Button type='submit'>Submit</Button>
-        </Form>
-      </Modal>
+      <AddNewCustomerModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
       <Grid>
         {isLoading ? (
           <Loader />
