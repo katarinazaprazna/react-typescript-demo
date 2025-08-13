@@ -38,11 +38,7 @@ export default () => {
   // const queryClient = useQueryClient();
 
   // Queries
-  const { isLoading, data } = useQuery(
-    'customers',
-    getCustomers,
-    // TODO: Stretch - Use the options object to handle errors.
-  );
+  const { isLoading, data, isError } = useQuery('customers', getCustomers);
 
   const onSubmit = (e: FormEvent<Element>) => {
     e.preventDefault();
@@ -52,7 +48,6 @@ export default () => {
 
   const columnHeaders = ['Name', 'Age', 'Is Cool'];
 
-  if (isLoading) return <Loader />;
   return (
     <Grid>
       <GridItem sm={6}>
@@ -120,31 +115,39 @@ export default () => {
         </Form>
       </Modal>
       <Grid>
-        <TableComposable aria-label='Simple table' variant='compact'>
-          <Caption>Here is a list of your customers:</Caption>
-          <Thead>
-            <Tr>
-              {columnHeaders.map((columnHeader) => (
-                <Th key={columnHeader}>{columnHeader}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data?.map(({ name, age, color, isCool }, key: number) => (
-              <Tr key={`${name}-${key}`}>
-                <ColoredTd color={color} dataLabel='name'>
-                  {name}
-                </ColoredTd>
-                <ColoredTd color={color} dataLabel='age'>
-                  {age}
-                </ColoredTd>
-                <ColoredTd color={color} dataLabel='isCool'>
-                  {isCool ? 'Yup' : 'Totally Not!'}
-                </ColoredTd>
+        {isLoading ? (
+          <Loader />
+        ) : isError ? (
+          <Text component='p' style={{ color: 'red' }}>
+            Failed to load customers.
+          </Text>
+        ) : (
+          <TableComposable aria-label='Simple table' variant='compact'>
+            <Caption>Here is a list of your customers:</Caption>
+            <Thead>
+              <Tr>
+                {columnHeaders.map((columnHeader) => (
+                  <Th key={columnHeader}>{columnHeader}</Th>
+                ))}
               </Tr>
-            ))}
-          </Tbody>
-        </TableComposable>
+            </Thead>
+            <Tbody>
+              {data?.map(({ name, age, color, isCool }, key: number) => (
+                <Tr key={`${name}-${key}`}>
+                  <ColoredTd color={color} dataLabel='name'>
+                    {name}
+                  </ColoredTd>
+                  <ColoredTd color={color} dataLabel='age'>
+                    {age}
+                  </ColoredTd>
+                  <ColoredTd color={color} dataLabel='isCool'>
+                    {isCool ? 'Yup' : 'Totally Not!'}
+                  </ColoredTd>
+                </Tr>
+              ))}
+            </Tbody>
+          </TableComposable>
+        )}
       </Grid>
     </Grid>
   );
