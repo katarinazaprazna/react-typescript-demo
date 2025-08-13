@@ -41,7 +41,7 @@ export default ({ isModalOpen, setIsModalOpen }: AddNewCustomerModalProps) => {
 
   const mutation = useMutation((customer: Customer) => postNewCustomer(customer), {
     onSuccess: () => {
-      queryClient.invalidateQueries(['customers', 'list']); // This causes the query to refetch and show the new customer
+      void queryClient.invalidateQueries(['customers', 'list']); // This causes the query to refetch and show the new customer
       setIsModalOpen(false);
     },
   });
