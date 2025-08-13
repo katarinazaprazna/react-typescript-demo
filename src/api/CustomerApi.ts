@@ -30,9 +30,16 @@ export const customersGetter = (): Customers => {
   return [];
 };
 
-export const addNewCustomer = (customer: Customer) => {
+const addNewCustomer = (customer: Customer) => {
   const customers = customersGetter();
   customers.push(customer);
+  return customersSetter(customers);
+};
+
+const removeCustomer = (customerName: string, customerAge: number) => {
+  const customers = customersGetter().filter(
+    (customer) => customer.name !== customerName || customer.age !== customerAge,
+  );
   return customersSetter(customers);
 };
 
@@ -43,3 +50,6 @@ export const postCustomers = (customers: Array<Customer> | undefined) => () =>
   callAPI(() => customersSetter(customers));
 
 export const postNewCustomer = (customer: Customer) => callAPI(() => addNewCustomer(customer));
+
+export const deleteCustomer = (customerName: string, customerAge: number) =>
+  callAPI(() => removeCustomer(customerName, customerAge));

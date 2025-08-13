@@ -1,7 +1,17 @@
 import { Button, Grid, GridItem, Text } from '@patternfly/react-core';
-import { Caption, TableComposable, Tbody, Th, Thead, Tr } from '@patternfly/react-table';
-import { useQuery } from 'react-query';
-import { getCustomers } from 'src/api/CustomerApi';
+import {
+  Caption,
+  TableComposable,
+  Tbody,
+  Th,
+  Thead,
+  Tr,
+  IAction,
+  Td,
+  ActionsColumn,
+} from '@patternfly/react-table';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { deleteCustomer, getCustomers } from 'src/api/CustomerApi';
 import { ColoredTd } from 'src/components/ColoredTd';
 import Loader from 'src/components/Loader';
 import { useAppContext } from 'src/middleware';
@@ -12,11 +22,30 @@ import AddNewCustomerModal from 'src/components/AddNewCustomerModal';
 export default () => {
   const { setDarkmode, darkmode } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   // Queries
-  const { isLoading, data, isError } = useQuery(['customers', 'list'], getCustomers);
+  const customersListKey = ['customers', 'list'];
+  const { isLoading, data, isError } = useQuery(customersListKey, getCustomers);
+
+  const deleteCustomerMutation = useMutation(
+    ({ name, age }: { name: string; age: number }) => deleteCustomer(name, age),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(customersListKey);
+      },
+    },
+  );
 
   const columnHeaders = ['Name', 'Age', 'Is Cool'];
+
+  const actions = (customerName: string, customerAge: number): IAction[] => [
+    {
+      title: 'Delete',
+      isDisabled: deleteCustomerMutation.isLoading,
+      onClick: () => deleteCustomerMutation.mutate({ name: customerName, age: customerAge }),
+    },
+  ];
 
   return (
     <Grid>
@@ -60,6 +89,9 @@ export default () => {
                   <ColoredTd color={color} dataLabel='isCool'>
                     {isCool ? 'Yup' : 'Totally Not!'}
                   </ColoredTd>
+                  <Td isActionCell>
+                    <ActionsColumn items={actions(name, age)} />
+                  </Td>
                 </Tr>
               ))}
             </Tbody>
