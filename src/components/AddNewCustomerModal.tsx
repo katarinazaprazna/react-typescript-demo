@@ -22,10 +22,15 @@ import {
   postNewCustomer,
   DEFAULT_COLOR,
 } from 'src/api/CustomerApi';
+import { useAppContext } from '../middleware';
 
 const useStyles = createUseStyles({
   inlineText: {
     display: 'block',
+  },
+  modalContainerWithDarkMode: {
+    background: '#333',
+    color: 'white',
   },
 });
 
@@ -38,6 +43,7 @@ export default ({ isModalOpen, setIsModalOpen }: AddNewCustomerModalProps) => {
   const [newUser, setNewUser] = useState<Partial<Customer>>({ isCool: false });
   const [selectToggle, setSelectToggle] = useState(false);
   const queryClient = useQueryClient();
+  const { darkmode } = useAppContext();
 
   const mutation = useMutation((customer: Customer) => postNewCustomer(customer), {
     onSuccess: () => {
@@ -65,6 +71,7 @@ export default ({ isModalOpen, setIsModalOpen }: AddNewCustomerModalProps) => {
       title='Add Customer'
       isOpen={isModalOpen}
       onClose={() => setIsModalOpen(false)}
+      className={darkmode ? classes.modalContainerWithDarkMode : undefined}
     >
       <Form onSubmit={onSubmit}>
         <Grid className={classes.inlineText}>

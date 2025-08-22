@@ -18,6 +18,14 @@ import { useAppContext } from 'src/middleware';
 import SnazzyButton from 'src/components/SnazzyButton';
 import { useState } from 'react';
 import AddNewCustomerModal from 'src/components/AddNewCustomerModal';
+import { createUseStyles } from 'react-jss';
+
+const useStyles = createUseStyles({
+  tableWithDarkMode: {
+    background: '#333',
+    color: 'white',
+  },
+});
 
 export default () => {
   const { setDarkmode, darkmode } = useAppContext();
@@ -47,6 +55,8 @@ export default () => {
     },
   ];
 
+  const classes = useStyles();
+
   return (
     <Grid>
       <GridItem sm={6}>
@@ -68,7 +78,11 @@ export default () => {
             Failed to load customers.
           </Text>
         ) : (
-          <TableComposable aria-label='Simple table' variant='compact'>
+          <TableComposable
+            aria-label='Simple table'
+            variant='compact'
+            className={darkmode ? classes.tableWithDarkMode : undefined}
+          >
             <Caption>Here is a list of your customers:</Caption>
             <Thead>
               <Tr>
