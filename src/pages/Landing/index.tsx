@@ -11,7 +11,7 @@ import {
   ActionsColumn,
 } from '@patternfly/react-table';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { deleteCustomer, getCustomers } from 'src/api/CustomerApi';
+import { Customers, deleteCustomer, getCustomers } from 'src/api/CustomerApi';
 import { ColoredTd } from 'src/components/ColoredTd';
 import Loader from 'src/components/Loader';
 import { useAppContext } from 'src/middleware';
@@ -19,6 +19,7 @@ import SnazzyButton from 'src/components/SnazzyButton';
 import { useState } from 'react';
 import AddNewCustomerModal from 'src/components/AddNewCustomerModal';
 import { createUseStyles } from 'react-jss';
+import { ServerError } from 'src/api/apiUtilities';
 
 const useStyles = createUseStyles({
   tableWithDarkMode: {
@@ -34,7 +35,12 @@ export default () => {
 
   // Queries
   const customersListKey = ['customers', 'list'];
-  const { isLoading, data, isError } = useQuery(customersListKey, getCustomers);
+  const { isLoading, data, isError, error } = useQuery<Customers, ServerError>(
+    customersListKey,
+    getCustomers,
+    // React Query re-throws the error to be caught by the nearest parent error boundary
+    { useErrorBoundary: (error) => error.status >= 500 },
+  );
 
   const deleteCustomerMutation = useMutation(
     ({ name, age }: { name: string; age: number }) => deleteCustomer(name, age),
@@ -73,7 +79,8 @@ export default () => {
       <Grid>
         {isLoading ? (
           <Loader />
-        ) : isError ? (
+        ) : // Handle local error (e.g., 4xx) directly in the component
+        isError && error.status < 500 ? (
           <Text component='p' style={{ color: 'red' }}>
             Failed to load customers.
           </Text>
@@ -92,22 +99,26 @@ export default () => {
               </Tr>
             </Thead>
             <Tbody>
-              {data?.map(({ name, age, color, isCool }, key: number) => (
-                <Tr key={`${name}-${key}`}>
-                  <ColoredTd color={color} dataLabel='name'>
-                    {name}
-                  </ColoredTd>
-                  <ColoredTd color={color} dataLabel='age'>
-                    {age}
-                  </ColoredTd>
-                  <ColoredTd color={color} dataLabel='isCool'>
-                    {isCool ? 'Yup' : 'Totally Not!'}
-                  </ColoredTd>
-                  <Td isActionCell>
-                    <ActionsColumn items={actions(name, age)} />
-                  </Td>
-                </Tr>
-              ))}
+              {data ? (
+                data.map(({ name, age, color, isCool }, key: number) => (
+                  <Tr key={`${name}-${key}`}>
+                    <ColoredTd color={color} dataLabel='name'>
+                      {name}
+                    </ColoredTd>
+                    <ColoredTd color={color} dataLabel='age'>
+                      {age}
+                    </ColoredTd>
+                    <ColoredTd color={color} dataLabel='isCool'>
+                      {isCool ? 'Yup' : 'Totally Not!'}
+                    </ColoredTd>
+                    <Td isActionCell>
+                      <ActionsColumn items={actions(name, age)} />
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Text component='p'>No customers.</Text>
+              )}
             </Tbody>
           </TableComposable>
         )}
